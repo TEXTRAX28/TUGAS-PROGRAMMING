@@ -26,5 +26,5 @@ while True:
     print("Play again? (yes/no):")
     ans = input()
 
-    if ans == "No":
+    if ans == "no":
         break 
