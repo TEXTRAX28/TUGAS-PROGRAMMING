@@ -1,6 +1,6 @@
 import sqlite3
 from flask import Flask, request
-
+from sqlite3 import Error
 app = Flask(__name__)
 
 def create_connection(path):
@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS players (
 
 @app.route('/signup', methods=['POST'])
 def signup():
+  conn = create_connection('players.sqlite')
   body = request.json
 
   username = body['username']
@@ -55,8 +56,34 @@ def signup():
   insert_query = f"""
 INSERT INTO {username} {password}
 """  
+  execute_query(conn,insert_query)
+  return "success"
+
+@app.route('/login', methods=['POST','GET'])
+def login():
+  conn = create_connection('players.sqlite')
+  body = request.json
+
+  username = body['username']
+  password = body['password']
+
+  insert_query = f"""
+SELECT * FROM players
+WHERE
+    username = {username}
+    and
+    password = {password}
+"""  
+  cursor=execute_query(conn,insert_query)
+  row=cursor.fetchall()
+  if row==[]:
+    return "False"
+  else:  
+    return "Success"
+
 @app.route('/highscore', methods=['POST'])
 def insert_highscore():
+    conn = create_connection('players.sqlite')
     body = request.json
 
     highscore = body['highscore']
@@ -69,3 +96,5 @@ SET
 WHERE
    username = {username}
  """
+    execute_query(conn,update_query)
+    return "Success"
